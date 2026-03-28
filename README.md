@@ -1,146 +1,96 @@
-# Cinema_CO2013
+# The Greenmart Vietnam
 
-Ứng dụng quản lý và tra cứu dữ liệu rạp chiếu phim (môn Cơ sở dữ liệu), gồm:
+Website bán hàng sản phẩm xanh xây dựng theo mô hình **MVC thuần PHP**.
+Dự án có 2 khu vực chính:
 
-- Backend Node.js + Express để gọi Stored Procedure/Function MySQL.
-- Frontend HTML/CSS/JS để thao tác các chức năng truy vấn và cập nhật suất chiếu.
+- **Client**: xem sản phẩm, tin tức, giỏ hàng, đặt hàng, liên hệ, FAQ.
+- **Admin**: quản lý dashboard, sản phẩm, đơn hàng, tin tức, FAQ, liên hệ và cài đặt website.
 
-## 1) Cấu trúc dự án
+---
 
-```text
-BE/
-	server.js           # API gọi stored procedure/function
-	fc.js               # Hàm JS dùng cho FE (gọi API, render bảng, sort, CRUD suất chiếu)
-FE/
-	index.html          # Trang menu chính
-	style.css
-	Final_CGV.sql       # Script tạo CSDL và dữ liệu logic
-	Form/
-		TimSuatChieu.html
-		TinhDoanhThuSuatChieu.html
-		GetTopPhim.html
-		insert_showtime.html
-package.json
-```
+## 1) Công nghệ sử dụng
 
-## 2) Yêu cầu môi trường
+- PHP (PDO)
+- MySQL
+- HTML/CSS/JS
+- Mô hình MVC tự xây dựng (không dùng framework)
 
-- Node.js (khuyến nghị >= 18)
-- MySQL 8.x (có hỗ trợ `JSON_TABLE`)
-- npm
+---
 
-## 3) Cài đặt
-
-Tại thư mục gốc dự án:
-
-```bash
-npm install
-```
-
-Dependencies hiện tại:
-
-- `express`
-- `mysql2`
-- `cors`
-
-## 4) Khởi tạo cơ sở dữ liệu
-
-1. Mở MySQL client (MySQL Workbench/CLI).
-2. Chạy file `FE/Final_CGV.sql` để tạo schema, bảng, ràng buộc và các thủ tục/hàm liên quan.
-
-> Lưu ý quan trọng:
->
-> - Trong `FE/Final_CGV.sql` tên database là `CGV_BTL`.
-> - Trong `BE/server.js` đang cấu hình:
->   - `database: 'cinema'`
->   - `ROUTINE_SCHEMA = 'CINEMA'`
->
-> Bạn cần thống nhất tên DB (ví dụ đổi cả hai về `CGV_BTL`) để API gọi đúng stored procedure/function.
-
-## 5) Cấu hình backend
-
-Mở `BE/server.js`, cập nhật phần kết nối MySQL theo máy của bạn:
-
-```js
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "matkhau_cua_ban",
-  database: "CGV_BTL",
-});
-```
-
-Đồng thời sửa `ROUTINE_SCHEMA` cho khớp:
-
-```sql
-WHERE ROUTINE_SCHEMA = 'CGV_BTL'
-```
-
-## 6) Chạy ứng dụng
-
-### Bước 1: chạy backend
-
-```bash
-node BE/server.js
-```
-
-Backend mặc định chạy tại:
+## 2) Cấu trúc thư mục chính
 
 ```text
-http://localhost:3000
+The-Greenmart-Vietnam/
+├── index.php                # Front Controller + Router
+├── database.sql             # Cấu trúc và dữ liệu mẫu
+├── config/
+│   └── database.php         # Cấu hình kết nối DB
+├── controllers/             # Xử lý request
+├── models/                  # Tương tác dữ liệu
+├── views/                   # Giao diện client/admin
+└── assets/                  # Hình ảnh, uploads
 ```
 
-API chính:
+---
+
+## 5.1) Yêu cầu môi trường
+
+- Web Server: Apache (Khuyên dùng XAMPP hoặc Laragon)
+- PHP Version: 7.4 hoặc 8.0 trở lên
+- Database: MySQL / MariaDB
+- Trình duyệt: Chrome, Firefox, Edge phiên bản mới nhất
+
+---
+
+## 5.2) Các bước cài đặt
+
+1. Bước 1: Tải mã nguồn về và giải nén vào thư mục `htdocs` (XAMPP) hoặc `www` (Laragon).
+2. Bước 2: Mở phpMyAdmin, tạo cơ sở dữ liệu mới tên `database`.
+3. Bước 3: Import file `database.sql` (có sẵn trong thư mục code) vào database vừa tạo.
+4. Bước 4: Mở file `config/database.php`, cấu hình thông tin kết nối (User: `root`, Password: rỗng).
+5. Bước 5: Truy cập trình duyệt theo đường dẫn `http://localhost`.
+
+---
+
+## 6) Tài khoản mẫu
+
+Tài khoản Admin mặc định:
+
+- Email: `admin@gmail.com`
+- Mật khẩu: `123456`
+
+Dữ liệu có sẵn trong `database.sql` vẫn bao gồm tài khoản User:
+
+- Email: `khach@gmail.com`
+- Mật khẩu: `123456`
+
+---
+
+## 7) Cơ chế định tuyến
+
+Dự án dùng query string với format:
 
 ```text
-GET /call-function?proc=<ten>&params=<json-array>&func=<mode>
+index.php?controller=<ten_controller>&action=<ten_action>
 ```
 
-Trong đó `func` có các mode:
+Ví dụ:
 
-- `False`: gọi stored procedure
-- `True`: gọi stored function
-- `Jason`: xử lý các hàm trả JSON (ví dụ Top phim, thống kê doanh thu theo ngày)
-- `INSERT`, `UPDATE`, `DELETE`: thao tác suất chiếu
+- Trang chủ: `index.php`
+- Đăng nhập: `index.php?controller=auth&action=login`
+- Đăng ký: `index.php?controller=auth&action=register`
+- Dashboard admin: `index.php?controller=admin&action=dashboard`
 
-### Bước 2: mở frontend
+---
 
-Mở file `FE/index.html` bằng trình duyệt (hoặc Live Server trong VS Code).
+## 8) Một số lưu ý
 
-Các chức năng chính từ menu:
+- Thư mục upload avatar: `assets/uploads/`
+- Router mặc định ở `index.php` với controller mặc định `HomeController`, action mặc định `index`.
+- Nếu truy cập route admin mà chưa đăng nhập admin, hệ thống sẽ chuyển về trang đăng nhập.
 
-- **Tìm, Sửa, Xóa suất chiếu** (`Form/TimSuatChieu.html`)
-- **Tính doanh thu rạp theo khoảng ngày** (`Form/TinhDoanhThuSuatChieu.html`)
-- **Top 3 phim theo doanh thu** (`Form/GetTopPhim.html`)
-- **Thêm suất chiếu** (`Form/insert_showtime.html`)
+---
 
-## 7) Luồng hoạt động tổng quát
+## 9) Tác giả / Nhóm phát triển
 
-1. FE lấy input từ form.
-2. `Form.js` tạo `proc` + `params`.
-3. `fc.js` gửi request tới `http://localhost:3000/call-function`.
-4. `server.js` kiểm tra tên routine hợp lệ và gọi MySQL.
-5. Kết quả trả về FE để render bảng/hiển thị thông báo.
-
-## 8) Lỗi thường gặp
-
-- **Không kết nối được DB**
-  - Kiểm tra `host/user/password/database` trong `BE/server.js`.
-  - Đảm bảo MySQL service đang chạy.
-
-- **API báo thủ tục/hàm không hợp lệ**
-  - Kiểm tra tên `ROUTINE_SCHEMA` trong query lấy routines.
-  - Đảm bảo procedure/function đã được tạo trong đúng schema.
-
-- **CORS hoặc FE không gọi được API**
-  - Đảm bảo backend đang chạy cổng `3000`.
-  - Truy cập thử trực tiếp: `http://localhost:3000/call-function`.
-
-- **Lỗi `require is not defined` trên FE**
-  - Do trang HTML đang include `../../BE/server.js` (file backend Node.js).
-  - Nếu gặp lỗi này, hãy bỏ thẻ `<script src="../../BE/server.js"></script>` trong các file HTML FE.
-
-## 9) Ghi chú
-
-- Dự án chưa khai báo script trong `package.json`, nên chạy trực tiếp bằng `node BE/server.js`.
-- Nếu muốn, có thể bổ sung script npm để chạy nhanh hơn (`start`, `dev`).
+Nhóm 2 thành viên.
